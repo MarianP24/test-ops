@@ -165,4 +165,12 @@ public class FixtureServiceImpl implements FixtureService {
             doBusinessLogic(fixture);
         }
     }
+
+    @Override
+    public void removeFixtureFromMachine(long fixtureId) {
+        Fixture fixture = fixtureRepository.findById(fixtureId)
+                .orElseThrow(() -> new IllegalArgumentException("Fixture with id " + fixtureId + " not found"));
+        fixture.getMachines().clear();
+        fixtureRepository.save(fixture);
+    }
 }

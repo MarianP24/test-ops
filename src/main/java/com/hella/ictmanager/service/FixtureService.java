@@ -23,4 +23,6 @@ public interface FixtureService {
     void addFixtureToMachine(long fixtureId, long machineId);
 
     void createMaintenanceFixtureReport();
+
+    void removeFixtureFromMachine(long fixtureId);
 }

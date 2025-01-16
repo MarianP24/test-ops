@@ -108,6 +108,7 @@ public class FixtureController {
     @PostMapping("/deleteFixture")
     public String deleteFixture(@RequestParam("id") Long id, Model model) {
         try {
+            fixtureService.removeFixtureFromMachine(id);
             fixtureService.deleteById(id);
             model.addAttribute("message", "Fixture deleted successfully");
         } catch (IllegalArgumentException e) {
@@ -116,10 +117,21 @@ public class FixtureController {
         return "fixtureControllerForms/deleteFixture";
     }
 
+    @GetMapping("/addFixtureToMachine")
+    public String showAddFixtureToMachineForm(Model model) {
+        model.addAttribute("fixtures", fixtureRepository.findAll());
+        return "fixtureControllerForms/addFixtureToMachine";
+    }
+
     @PostMapping("/addFixtureToMachine")
-    public String addFixtureToMachineForm() {
-        // Logica pentru adăugarea fixture-ului la o mașină
-        return "fixtureControllerForms/addFixtureToMachine"; // Afișează formularul de adăugare a unui fixture la o mașină
+    public String addFixtureToMachine(@RequestParam("fixtureId") Long fixtureId, @RequestParam("machineId") Long machineId, Model model) {
+        try {
+            fixtureService.addFixtureToMachine(fixtureId, machineId);
+            model.addAttribute("message", "Fixture added to machine successfully");
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+        }
+        return "fixtureControllerForms/addFixtureToMachine";
     }
 
     @PostMapping("/createMaintenanceReport")

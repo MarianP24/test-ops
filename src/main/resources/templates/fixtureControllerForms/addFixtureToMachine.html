@@ -1,10 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+
+<th:block th:replace="~{fragments/head :: head(title='Add Fixture to machine')}"></th:block>
+
 <body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <h1 class="mt-5">Add Fixture to Machine</h1>
+    <form action="/fixtures/addFixtureToMachine" method="post" class="mt-4">
+
+        <div class="mb-3">
+            <label for="fixtureId" class="form-label mt-2">Fixture ID</label>
+            <input type="text" id="fixtureId" name="fixtureId" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="machineId" class="form-label mt-2">Machine ID</label>
+            <input type="text" id="machineId" name="machineId" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Add Fixture to Machine</button>
+    </form>
+</div>
+<th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 
 </body>
 </html>
