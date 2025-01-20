@@ -1,0 +1,61 @@
+.hexagon-container {
+    position: fixed;
+    top: 52%;
+    left: 45%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 500px;
+    overflow: visible;
+}
+
+.hexagon {
+    width: 150px;
+    height: 130px;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    z-index: 1;
+}
+
+.hexagon:hover {
+    transform: scale(1.1);
+    transition: transform 0.5s ease;
+}
+
+.hex1 {
+    top: 60px;
+    left: 10px;
+    background-image: url('../images/findFixture.PNG');
+}
+
+.hex2 {
+    top: 60px;
+    left: 170px;
+    background-image: url('../images/listFixtures.PNG');
+}
+
+.hex3 {
+    top: 60px;
+    left: 330px;
+    background-image: url('../images/saveFixture.PNG');
+}
+
+.hex4 {
+    top: 60px;
+    left: 490px;
+    background-image: url('../images/updateFixture.PNG');
+}
+
+.hex5 {
+    top: 60px;
+    left: 650px;
+    background-image: url('../images/deleteFixture.PNG');
+}
