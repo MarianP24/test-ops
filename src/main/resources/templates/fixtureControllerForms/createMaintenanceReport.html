@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<html lang="en">
+
+<th:block th:replace="~{fragments/head :: head(title='Create Maintenance report')}"></th:block>
+
 <body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <h1 class="mt-5">Create Maintenance Report</h1>
+    <form action="/fixtures/createMaintenanceReport" method="post">
+
+        <button type="submit" class="btn btn-danger mt-2">Create Maintenance report</button>
+        <div th:if="${message}" class="alert alert-success mt-2" th:text="${message}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger mt-2" th:text="${errorMessage}"></div>
+
+    </form>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 
 </body>
 </html>

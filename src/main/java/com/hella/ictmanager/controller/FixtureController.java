@@ -134,9 +134,19 @@ public class FixtureController {
         return "fixtureControllerForms/addFixtureToMachine";
     }
 
-    @PostMapping("/createMaintenanceReport")
+    @GetMapping("/createMaintenanceReport")
     public String createMaintenanceReportForm() {
-        // Logica pentru crearea raportului de mentenanță
-        return "fixtureControllerForms/createMaintenanceReport"; // Afișează formularul de creare a unui raport de mentenanță
+        return "fixtureControllerForms/createMaintenanceReport";
+    }
+
+    @PostMapping("/createMaintenanceReport")
+    public String createMaintenanceReportForm(Model model) {
+        try {
+            fixtureService.createMaintenanceFixtureReport();
+            model.addAttribute("message", "Maintenance report created successfully");
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+        }
+        return "fixtureControllerForms/createMaintenanceReport";
     }
 }
