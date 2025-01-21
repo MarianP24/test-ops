@@ -1,10 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+<th:block th:replace="~{fragments/head :: head(title='Save Machine')}"></th:block>
+
 <body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <h1 class="mt-5">Save Machine</h1>
+    <form action="/machines/save" method="post" th:object="${machineDTO}">
+
+        <div class="mb-3">
+            <label for="equipmentName">Equipment Name</label>
+            <input type="text" id="equipmentName" th:field="*{equipmentName}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="equipmentType">Machine Type</label>
+            <input type="text" id="equipmentType" th:field="*{equipmentType}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="serialNumber">Machine Serial Number</label>
+            <input type="text" id="serialNumber" th:field="*{serialNumber}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="internalFactory">Internal Factory</label>
+            <input type="number" id="internalFactory" th:field="*{internalFactory}" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Machine</button>
+
+    </form>
+
+    <div th:if="${message}" class="alert alert-success mt-2" th:text="${message}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger mt-2" th:text="${errorMessage}"></div>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 
 </body>
 </html>

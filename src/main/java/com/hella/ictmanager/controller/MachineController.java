@@ -2,6 +2,7 @@ package com.hella.ictmanager.controller;
 
 import com.hella.ictmanager.entity.Machine;
 import com.hella.ictmanager.model.MachineDTO;
+import com.hella.ictmanager.repository.MachineRepository;
 import com.hella.ictmanager.service.impl.MachineServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -15,9 +16,11 @@ import java.util.List;
 @RequestMapping("/machines")
 public class MachineController {
     private final MachineServiceImpl machineService;
+    private final MachineRepository machineRepository;
 
-    public MachineController(MachineServiceImpl machineService) {
+    public MachineController(MachineServiceImpl machineService, MachineRepository machineRepository) {
         this.machineService = machineService;
+        this.machineRepository = machineRepository;
     }
 
     @GetMapping("/listEndpointsMachine")
@@ -25,13 +28,13 @@ public class MachineController {
         return "machineControllerForms/listEndpointsMachine";
     }
 
-    @GetMapping("/machine/new")
+    @GetMapping("/new")
     public String saveMachineForm(Model model) {
-        model.addAttribute("machine", new Machine());
+        model.addAttribute("machineDTO", new MachineDTO("", "", "",0 ));
         return "machineControllerForms/saveMachine";
     }
 
-    @PostMapping("/machine/save")
+    @PostMapping("/save")
     public String saveMachine(@ModelAttribute MachineDTO machineDTO, Model model) {
         machineService.save(machineDTO);
         model.addAttribute("message", "Machine saved successfully");
@@ -56,7 +59,7 @@ public class MachineController {
 
     @GetMapping("/listMachines")
     public String listMachines(Model model) {
-        List<MachineDTO> machines = machineService.findAll();
+        List<Machine> machines = machineRepository.findAll();
         model.addAttribute("machines", machines);
         return "machineControllerForms/listMachines";
     }

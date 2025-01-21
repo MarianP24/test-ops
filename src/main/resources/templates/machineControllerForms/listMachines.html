@@ -1,10 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+
+<th:block th:replace="~{fragments/head :: head(title='List of Machines')}"></th:block>
+
 <body>
 
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <h1 class="mt-5">List of Machines</h1>
+    <table class="table table-striped mt-4">
+        <thead>
+        <tr>
+            <th><input type="text" id="searchId" placeholder="Search by ID" class="form-control"></th>
+            <th><input type="text" id="searchName" placeholder="Search by Name" class="form-control"></th>
+            <th><input type="text" id="searchType" placeholder="Search by Type" class="form-control"></th>
+            <th><input type="text" id="searchLocation" placeholder="Search by Location" class="form-control"></th>
+            <th><input type="text" id="searchSerialNumber" placeholder="Search by SN" class="form-control"></th>
+            <th><button class="btn btn-sm btn-outline-secondary" onclick="sortTable()">Sort by ID</button></th>
+        </tr>
+
+        <tr>
+            <th class="text-center align-middle">ID</th>
+            <th class="text-center align-middle">Name</th>
+            <th class="text-center align-middle">Type</th>
+            <th class="text-center align-middle">Location</th>
+            <th class="text-center align-middle">SN</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="machine : ${machines}">
+            <td th:text="${machine.id}"></td>
+            <td th:text="${machine.equipmentName}"></td>
+            <td th:text="${machine.equipmentType}"></td>
+            <td th:text="${machine.internalFactory}"></td>
+            <td th:text="${machine.serialNumber}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary mt-3" onclick="countMachines()">Count Machines</button>
+    <button class="btn btn-secondary mt-3" onclick="generateCSV()">Generate CSV</button>
+
+    <p id="machineCount" class="mt-3"></p>
+
+</div>
+
+<th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+
+<script>
+    function countMachines() {
+        const rows = document.querySelectorAll('tbody tr');
+        const machineCount = rows.length;
+        document.getElementById('machineCount').innerText = 'Total Machines: ' + machineCount;
+    }
+
+    function filterTable() {
+        const inputId = document.getElementById('searchId').value.toLowerCase();
+        const inputName = document.getElementById('searchName').value.toLowerCase();
+        const inputType = document.getElementById('searchType').value.toLowerCase();
+        const inputLocation = document.getElementById('searchLocation').value.toLowerCase();
+        const inputSerialNumber = document.getElementById('searchSerialNumber').value.toLowerCase();
+
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const id = row.cells[0].innerText.toLowerCase();
+            const name = row.cells[1].innerText.toLowerCase();
+            const type = row.cells[2].innerText.toLowerCase();
+            const location = row.cells[3].innerText.toLowerCase();
+            const serialNumber = row.cells[4].innerText.toLowerCase();
+
+            row.style.display =
+                (id.includes(inputId) &&
+                    name.includes(inputName) &&
+                    type.includes(inputType) &&
+                    location.includes(inputLocation) &&
+                    serialNumber.includes(inputSerialNumber)) ? '' : 'none';
+        });
+    }
+
+    document.getElementById('searchId').addEventListener('input', filterTable);
+    document.getElementById('searchName').addEventListener('input', filterTable);
+    document.getElementById('searchType').addEventListener('input', filterTable);
+    document.getElementById('searchLocation').addEventListener('input', filterTable);
+    document.getElementById('searchSerialNumber').addEventListener('input', filterTable);
+
+    let ascending = true;
+
+    function sortTable() {
+        const table = document.querySelector('tbody');
+        const rows = Array.from(table.rows);
+
+        rows.sort((a, b) => {
+            const aId = parseInt(a.cells[0].innerText);
+            const bId = parseInt(b.cells[0].innerText);
+
+            return ascending ? aId - bId : bId - aId;
+        });
+
+        rows.forEach(row => table.appendChild(row));
+
+        ascending = !ascending;
+    }
+
+    function generateCSV() {
+        const rows = document.querySelectorAll('tbody tr');
+        let csvContent = 'ID,Name,Type,Location,SN\n';
+
+        rows.forEach(row => {
+            const columns = Array.from(row.cells).map(cell => cell.innerText);
+            csvContent += columns.join(',') + '\n';
+        });
+
+        const blob = new Blob([csvContent], {type: 'text/csv'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'machine list.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
 </body>
 </html>
