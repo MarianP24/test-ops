@@ -1,10 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+
+<th:block th:replace="~{fragments/head :: head(title='Update Machine')}"></th:block>
+
 <body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-5">
+    <h2>Update Machine</h2>
+
+    <!-- Form to find and update machine -->
+    <form action="/machines/updateMachine/IDForm" method="post">
+        <div class="form-group mb-3">
+            <label for="id">Machine ID:</label>
+            <input type="number" class="form-control" id="id" name="id" placeholder="Enter machine ID" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Load Machine</button>
+
+        <div th:if="${errorMessage}" class="alert alert-danger mt-2" th:text="${errorMessage}"></div>
+
+    </form>
+
+    <!-- Display the machine update form only if machine is present -->
+    <div th:if="${machine}">
+        <form action="/machines/updateMachine" th:object="${machine}" method="post">
+
+            <div class="form-group mb-3">
+                <label for="equipmentName">Equipment Name:</label>
+                <input type="text" class="form-control" id="equipmentName" th:field="*{equipmentName}">
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="internalFactory">Internal Factory:</label>
+                <input type="number" class="form-control" id="internalFactory" th:field="*{internalFactory}">
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="serialNumber">Serial Number:</label>
+                <input type="text" class="form-control" id="serialNumber" th:field="*{serialNumber}">
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="equipmentType">Equipment Type:</label>
+                <input type="text" class="form-control" id="equipmentType" th:field="*{equipmentType}">
+            </div>
+
+            <!-- Hidden Field for ID -->
+            <input type="hidden" th:field="*{id}" />
+
+            <button type="submit" class="btn btn-primary">Update Machine</button>
+
+            <div th:if="${message}" class="alert alert-success mt-2" th:text="${message}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger mt-2" th:text="${errorMessage}"></div>
+        </form>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 
 </body>
 </html>

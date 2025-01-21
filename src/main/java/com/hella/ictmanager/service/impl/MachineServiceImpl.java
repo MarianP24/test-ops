@@ -58,4 +58,10 @@ public class MachineServiceImpl implements MachineService {
         machineRepository.deleteById(id);
         log.info("Machine with id {} has been deleted", id);
     }
+
+    @Override
+    public Machine findEntityById(Long id) {
+        return machineRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Machine with id " + id + " not found"));
+    }
 }

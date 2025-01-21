@@ -52,7 +52,7 @@ public class MachineController {
                 model.addAttribute("errorMessage", e.getMessage());
             }
         } else {
-            model.addAttribute("errorMessage", "Please provide an id");
+            model.addAttribute("errorMessage", null);
         }
         return "machineControllerForms/findMachine";
     }
@@ -73,17 +73,16 @@ public class MachineController {
     @PostMapping("/updateMachine/IDForm")
     public String loadUpdateMachineForm(@RequestParam("id") Long id, Model model) {
         try {
-            MachineDTO machine = machineService.findById(id);
+            Machine machine = machineService.findEntityById(id);
             model.addAttribute("machine", machine);
-            model.addAttribute("message", "Machine found");
             return "machineControllerForms/updateMachine";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
-            return "machineControllerForms/updateMachine";
         }
+        return "machineControllerForms/updateMachine";
     }
 
-    @PostMapping("/updateMachine/save")
+    @PostMapping("/updateMachine")
     public String updateMachine(@ModelAttribute Machine machine, Model model) {
         try {
             machineService.update(machine.getId(), MachineDTO.convertToDTO(machine));

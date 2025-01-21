@@ -1,7 +1,7 @@
 .hexagon-container {
     position: fixed;
     top: 52%;
-    left: 45%;
+    left: 43%;
     transform: translate(-50%, -50%);
     width: 600px;
     height: 500px;
@@ -9,8 +9,8 @@
 }
 
 .hexagon {
-    width: 150px;
-    height: 130px;
+    width: 170px;
+    height: 150px;
     position: absolute;
     display: flex;
     align-items: center;
@@ -18,6 +18,7 @@
     text-align: center;
     color: white;
     font-weight: bold;
+    font-size: 1.1em;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -33,29 +34,29 @@
 .hex1 {
     top: 60px;
     left: 10px;
-    background-image: url('../images/findFixture.PNG');
+    background-image: url('../images/saveMachine.PNG');
 }
 
 .hex2 {
     top: 60px;
-    left: 170px;
-    background-image: url('../images/listFixtures.PNG');
+    left: 190px;
+    background-image: url('../images/deleteMachine.PNG');
 }
 
 .hex3 {
     top: 60px;
-    left: 330px;
-    background-image: url('../images/saveFixture.PNG');
+    left: 370px;
+    background-image: url('../images/listMachine.PNG');
 }
 
 .hex4 {
     top: 60px;
-    left: 490px;
-    background-image: url('../images/updateFixture.PNG');
+    left: 550px;
+    background-image: url('../images/updateMachine.PNG');
 }
 
 .hex5 {
     top: 60px;
-    left: 650px;
-    background-image: url('../images/deleteFixture.PNG');
+    left: 730px;
+    background-image: url('../images/findMachine.PNG');
 }

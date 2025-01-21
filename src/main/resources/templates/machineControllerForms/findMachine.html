@@ -1,10 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+
+<th:block th:replace="~{fragments/head :: head(title='Find Machine')}"></th:block>
+
 <body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <h1 class="mt-5">Find Machine</h1>
+    <form action="/machines/findMachine" method="get" class="mt-4">
+
+        <div class="mb-3">
+            <label for="id" class="form-label">Machine ID</label>
+            <input type="number" id="id" name="id" class="form-control" placeholder="Enter Machine ID">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Search</button>
+
+    </form>
+
+    <div class="mt-4">
+        <div th:if="${machine != null}">
+            <h2>Machine Details</h2>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Equipment Name:</strong> <span th:text="${machine.equipmentName}"></span></li>
+                <li class="list-group-item"><strong>Model:</strong> <span th:text="${machine.equipmentType}"></span></li>
+                <li class="list-group-item"><strong>Serial Number:</strong> <span th:text="${machine.serialNumber}"></span></li>
+                <li class="list-group-item"><strong>Internal Factory:</strong> <span th:text="${machine.internalFactory}"></span></li>
+            </ul>
+        </div>
+        <div th:if="${errorMessage != null}" class="alert alert-danger mt-2" th:text="${errorMessage}"></div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
 
 </body>
 </html>

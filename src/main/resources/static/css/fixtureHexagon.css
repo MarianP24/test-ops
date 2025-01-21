@@ -1,7 +1,7 @@
 .hexagon-container {
     position: fixed;
     top: 45%;
-    left: 50%;
+    left: 48%;
     transform: translate(-50%, -50%);
     width: 600px;
     height: 500px;
@@ -9,8 +9,8 @@
 }
 
 .hexagon {
-    width: 150px;
-    height: 130px;
+    width: 160px;
+    height: 140px;
     position: absolute;
     display: flex;
     align-items: center;
@@ -18,6 +18,7 @@
     text-align: center;
     color: white;
     font-weight: bold;
+    font-size: 1.1em;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -31,43 +32,38 @@
 }
 
 .hex1 {
-    top: 320px;
-    left: 160px;
-    background-image: url('../images/saveFixture.PNG');
-}
-
-.hex2 {
-    top: 60px;
+    top: 45px;
     left: 160px;
     background-image: url('../images/findFixture.PNG');
 }
 
-.hex3 {
-    top: 60px;
-    left: 320px;
+.hex2 {
+    top: 45px;
+    left: 327px;
     background-image: url('../images/listFixtures.PNG');
 }
-
-.hex4 {
-    top: 190px;
-    left: 82px;
+.hex3 {
+    top: 192px;
+    left: 75px;
     background-image: url('../images/updateFixture.PNG');
 }
-
-.hex5 {
-    top: 190px;
-    left: 240px;
+.hex4 {
+    top: 192px;
+    left: 242px;
     background-image: url('../images/deleteFixture.PNG');
 }
-
-.hex6 {
-    top: 190px;
-    left: 400px;
+.hex5 {
+    top: 192px;
+    left: 409px;
     background-image: url('../images/addFixturetoMachine.PNG');
 }
-
+.hex6 {
+    top: 340px;
+    left: 160px;
+    background-image: url('../images/saveFixture.PNG');
+}
 .hex7 {
-    top: 320px;
-    left: 320px;
+    top: 340px;
+    left: 327px;
     background-image: url('../images/createMtReport.PNG');
 }
