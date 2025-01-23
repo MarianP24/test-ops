@@ -1,17 +1,23 @@
 .hexagon-container {
     position: fixed;
-    top: 52%;
+    top: 60%;
     left: 43%;
     transform: translate(-50%, -50%);
     width: 600px;
     height: 500px;
     overflow: visible;
+    display: flex;
+    gap: 20px;
+}
+
+.hexagon-wrap {
+    position: relative;
+    filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.5));
 }
 
 .hexagon {
     width: 170px;
     height: 150px;
-    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -24,39 +30,15 @@
     background-repeat: no-repeat;
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     z-index: 1;
+    transition: transform 0.5s ease;
 }
 
 .hexagon:hover {
     transform: scale(1.1);
-    transition: transform 0.5s ease;
 }
 
-.hex1 {
-    top: 60px;
-    left: 10px;
-    background-image: url('../images/saveMachine.PNG');
-}
-
-.hex2 {
-    top: 60px;
-    left: 190px;
-    background-image: url('../images/deleteMachine.PNG');
-}
-
-.hex3 {
-    top: 60px;
-    left: 370px;
-    background-image: url('../images/listMachine.PNG');
-}
-
-.hex4 {
-    top: 60px;
-    left: 550px;
-    background-image: url('../images/updateMachine.PNG');
-}
-
-.hex5 {
-    top: 60px;
-    left: 730px;
-    background-image: url('../images/findMachine.PNG');
-}
+.hex1 { background-image: url('../images/saveMachine.PNG'); }
+.hex2 { background-image: url('../images/deleteMachine.PNG'); }
+.hex3 { background-image: url('../images/listMachine.PNG'); }
+.hex4 { background-image: url('../images/updateMachine.PNG'); }
+.hex5 { background-image: url('../images/findMachine.PNG'); }

@@ -8,11 +8,21 @@
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="hexagon-container">
-    <a href="/machines/new" class="hexagon hex1"><span>Save Machine</span></a>
-    <a href="/machines/deleteMachine" class="hexagon hex2"><span>Delete Machine</span></a>
-    <a href="/machines/listMachines" class="hexagon hex3"><span>List Machines</span></a>
-    <a href="/machines/updateMachine" class="hexagon hex4"><span>Update Machine</span></a>
-    <a href="/machines/findMachine" class="hexagon hex5"><span>Find Machine</span></a>
+    <div class="hexagon-wrap">
+        <a href="/machines/new" class="hexagon hex1"><span>Save Machine</span></a>
+    </div>
+    <div class="hexagon-wrap">
+        <a href="/machines/deleteMachine" class="hexagon hex2"><span>Delete Machine</span></a>
+    </div>
+    <div class="hexagon-wrap">
+        <a href="/machines/listMachines" class="hexagon hex3"><span>List Machines</span></a>
+    </div>
+    <div class="hexagon-wrap">
+        <a href="/machines/updateMachine" class="hexagon hex4"><span>Update Machine</span></a>
+    </div>
+    <div class="hexagon-wrap">
+        <a href="/machines/findMachine" class="hexagon hex5"><span>Find Machine</span></a>
+    </div>
 </div>
 
 <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
