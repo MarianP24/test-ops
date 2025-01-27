@@ -8,6 +8,11 @@
     overflow: visible;
 }
 
+.hexagon-wrap {
+    position: relative;
+    filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 1));
+}
+
 .hexagon {
     width: 160px;
     height: 140px;
@@ -35,35 +40,49 @@
     top: 45px;
     left: 160px;
     background-image: url('../images/findFixture.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;
 }
 
 .hex2 {
     top: 45px;
     left: 327px;
     background-image: url('../images/listFixtures.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;
 }
 .hex3 {
     top: 192px;
     left: 75px;
     background-image: url('../images/updateFixture.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;
 }
 .hex4 {
     top: 192px;
     left: 242px;
     background-image: url('../images/deleteFixture.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;
 }
 .hex5 {
     top: 192px;
     left: 409px;
     background-image: url('../images/addFixturetoMachine.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;
 }
 .hex6 {
     top: 340px;
     left: 160px;
     background-image: url('../images/saveFixture.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;
 }
 .hex7 {
     top: 340px;
     left: 327px;
     background-image: url('../images/createMtReport.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;
 }

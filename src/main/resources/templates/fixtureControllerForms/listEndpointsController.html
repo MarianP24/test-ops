@@ -8,13 +8,27 @@
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="hexagon-container">
-    <a href="/fixtures/adaptor/new" class="hexagon hex1"><span>Save Fixture</span></a>
-    <a href="/fixtures/deleteFixture" class="hexagon hex2"><span>Delete Fixture</span></a>
-    <a href="/fixtures/listFixtures" class="hexagon hex3"><span>List Fixtures</span></a>
-    <a href="/fixtures/updateFixture" class="hexagon hex4"><span>Update Fixture</span></a>
-    <a href="/fixtures/findFixture" class="hexagon hex5"><span>Find Fixture</span></a>
-    <a href="/fixtures/addFixtureToMachine" class="hexagon hex6"><span>Add Fixture to Machine</span></a>
-    <a href="/fixtures/createMaintenanceReport" class="hexagon hex7"><span>Create Mt Report</span></a>
+    <div class="hexagon-wrap">
+        <a href="/fixtures/new" class="hexagon hex1"><span>Save Fixture</span></a>
+    </div>
+    <div class="hexagon-wrap">
+        <a href="/fixtures/deleteFixture" class="hexagon hex2"><span>Delete Fixture</span></a>
+    </div>
+    <div class="hexagon-wrap">
+        <a href="/fixtures/listFixtures" class="hexagon hex3"><span>List Fixtures</span></a>
+    </div>
+    <div class="hexagon-wrap">
+        <a href="/fixtures/updateFixture" class="hexagon hex4"><span>Update Fixture</span></a>
+    </div>
+    <div class="hexagon-wrap">
+        <a href="/fixtures/findFixture" class="hexagon hex5"><span>Find Fixture</span></a>
+    </div>
+    <div class="hexagon-wrap">
+        <a href="/fixtures/addFixtureToMachine" class="hexagon hex6"><span>Add Fixture to Machine</span></a>
+    </div>
+    <div class="hexagon-wrap">
+        <a href="/fixtures/createMaintenanceReport" class="hexagon hex7"><span>Create Mt Report</span></a>
+    </div>
 </div>
 
 <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>

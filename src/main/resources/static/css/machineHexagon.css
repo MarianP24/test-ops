@@ -12,7 +12,7 @@
 
 .hexagon-wrap {
     position: relative;
-    filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 1));
 }
 
 .hexagon {
@@ -37,8 +37,18 @@
     transform: scale(1.1);
 }
 
-.hex1 { background-image: url('../images/saveMachine.PNG'); }
-.hex2 { background-image: url('../images/deleteMachine.PNG'); }
-.hex3 { background-image: url('../images/listMachine.PNG'); }
-.hex4 { background-image: url('../images/updateMachine.PNG'); }
-.hex5 { background-image: url('../images/findMachine.PNG'); }
+.hex1 { background-image: url('../images/saveMachine.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;}
+.hex2 { background-image: url('../images/deleteMachine.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;}
+.hex3 { background-image: url('../images/listMachine.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;}
+.hex4 { background-image: url('../images/updateMachine.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;}
+.hex5 { background-image: url('../images/findMachine.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;}
