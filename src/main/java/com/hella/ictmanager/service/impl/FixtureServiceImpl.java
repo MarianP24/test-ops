@@ -2,11 +2,11 @@ package com.hella.ictmanager.service.impl;
 
 import com.hella.ictmanager.entity.Fixture;
 import com.hella.ictmanager.entity.Machine;
-import com.hella.ictmanager.exception.FixtureFileNotFoundException;
 import com.hella.ictmanager.model.FixtureDTO;
 import com.hella.ictmanager.repository.FixtureRepository;
 import com.hella.ictmanager.repository.MachineRepository;
 import com.hella.ictmanager.service.FixtureService;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,21 +16,54 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class FixtureServiceImpl implements FixtureService {
     private final FixtureRepository fixtureRepository;
     private final MachineRepository machineRepository;
+    private final ExecutorService executorService;
 
-    @Value("${server.path}")
-    private String serverPath;
+    @Value("${network.share.username}")
+    private String username;
+
+    @Value("${network.share.password}")
+    private String password;
+
+    @Value("${maintenance.subfolder}")
+    private String maintenanceSubfolder;
 
     public FixtureServiceImpl(FixtureRepository fixtureRepository, MachineRepository machineRepository) {
         this.fixtureRepository = fixtureRepository;
         this.machineRepository = machineRepository;
+        this.executorService = Executors.newFixedThreadPool(
+                Runtime.getRuntime().availableProcessors()
+        );
+    }
+
+    @PreDestroy
+    public void shutdownExecutor() {
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
@@ -102,68 +135,152 @@ public class FixtureServiceImpl implements FixtureService {
     public void createMaintenanceFixtureReport() {
         List<Fixture> fixtures = fixtureRepository.findAll();
 
-        for (Fixture fixture : fixtures) {
-            log.info("Fixture {} has been reported for maintenance", fixture.getFileName());
-            doBusinessLogic(fixture);
-        }
-        log.info("Maintenance report has been created");
+        // First, log fixtures with machines that have null hostnames
+        fixtures.stream()
+                .filter(f -> !f.getMachines().isEmpty())
+                .filter(f -> f.getMachines().iterator().next().getHostname() == null)
+                .forEach(f -> log.warn("Machine {} does not have a hostname",
+                        f.getMachines().iterator().next().getEquipmentName()));
+
+        // Then process only fixtures with valid hostnames
+        Map<String, List<Fixture>> fixturesByHostname = fixtures.stream()
+                .filter(f -> !f.getMachines().isEmpty())
+                .filter(f -> f.getMachines().iterator().next().getHostname() != null)
+                .collect(Collectors.groupingBy(f ->
+                        f.getMachines().iterator().next().getHostname()));
+
+        List<CompletableFuture<Void>> futures = fixturesByHostname.entrySet().stream()
+                .map(entry -> CompletableFuture.runAsync(() ->
+                        processHostnameFixtures(entry.getKey(), entry.getValue()), executorService))
+                .toList();
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        log.info("Maintenance report has been concluded for all fixtures with valid hostnames");
     }
 
-    private File createFixtureFile(Fixture fixture) {
-        File file = new File(serverPath + fixture.getFileName());
+    private void processHostnameFixtures(String hostname, List<Fixture> fixtures) {
+        try {
+            String uncBasePath = createTemporaryConnection(hostname);
+
+            for (Fixture fixture : fixtures) {
+                processSingleFixture(fixture, hostname, uncBasePath);
+            }
+        } catch (IOException e) {
+            log.error("Error creating temporary connection to hostname {}", hostname, e);
+        } finally {
+            removeConnection(hostname);
+        }
+    }
+
+    private void processSingleFixture(Fixture fixture, String hostname, String uncBasePath) {
+        try {
+            processFixture(fixture, uncBasePath, hostname);
+        } catch (Exception e) {
+            log.error("Error processing fixture {} on hostname {}", fixture.getFileName(), hostname, e);
+        }
+    }
+
+    private String createTemporaryConnection(String hostname) throws IOException {
+        String uncPath = String.format("\\\\%s\\C$\\%s", hostname, maintenanceSubfolder);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                "cmd.exe", "/c", "net", "use", "\\\\" + hostname + "\\C$", password, "/user:" + username);
+
+        Process process = processBuilder.start();
+
+        try {
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new IOException("Failed to create temporary connection to " + hostname);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Connection interrupted", e);
+        }
+
+        return uncPath;
+    }
+
+
+    private void removeConnection(String hostname) {
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    "cmd.exe", "/c", "net", "use", "\\\\" + hostname + "\\C$", "/delete", "/y");
+
+            Process process = processBuilder.start();
+            int exitCode = process.waitFor();
+
+            if (exitCode != 0) {
+                log.error("Failed to remove connection to {}. Exit code: {}", hostname, exitCode);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Connection removal interrupted for {}", hostname, e);
+        } catch (IOException e) {
+            log.error("Error removing connection to {}", hostname, e);
+        }
+    }
+
+    private void processFixture(Fixture fixture, String basePath, String hostname) {
+        String fullPath = basePath + "\\" + fixture.getFileName();
+        File file = new File(fullPath);
 
         if (!file.exists()) {
-            throw new IllegalArgumentException("File " + fixture.getFileName() + " does not exist");
+            log.error("File {} does not exist at path: {}", fixture.getFileName(), fullPath);
+            return;
         }
-        log.info("File {} has been found in path {}", fixture.getFileName(), file.getAbsolutePath());
-        log.info("File {} has been created", fixture.getFileName());
-        return file;
-    }
-
-    private void doBusinessLogic(Fixture fixture) {
-        File file = createFixtureFile(fixture);
 
         try (Scanner scanner = new Scanner(file)) {
-
             if (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                log.info("Line {} has been read from fixture {}", line, fixture.getFileName());
+                log.info("Line {} has been read from file {}", line, fixture.getFileName());
                 String[] words = line.split("\\s+");
                 int counter = Integer.parseInt(words[0]);
 
                 if (counter >= fixture.getFixtureCounterSet()) {
-                    resetCounter(fixture.getFileName(), file.getAbsolutePath());
+                    resetCounter(fixture.getFileName(), fullPath, hostname);
                     log.info("Counter has been reset for fixture {}", fixture.getFileName());
                 } else {
-                    fixture.setCounter(Integer.parseInt(words[0]));
+                    fixture.setCounter(counter);
                     fixtureRepository.save(fixture);
-                    log.info("Counter has been updated for fixture {}", fixture.getFileName());
+                    log.info("Counter has been checked for fixture {}", fixture.getFileName());
                 }
             }
         } catch (FileNotFoundException e) {
-            throw new FixtureFileNotFoundException(fixture.getFileName() + "Not found", e);
+            log.error("File not found: {}", fullPath, e);
         }
     }
 
-    private void resetCounter(String fixtureFileName, String filePath) {
-        String countersFileName = "contoare resetate.txt";
-        try (FileWriter wtgFileWriter = new FileWriter(filePath);
-             FileWriter countersFileWriter = new FileWriter(serverPath + countersFileName, true)) {
+    private void resetCounter(String fixtureFileName, String filePath, String hostname) {
 
-            String newline = "0 0 n";
-            wtgFileWriter.write(newline);
-            countersFileWriter.write("Contorul fixture-ului " + fixtureFileName + " a fost resetat la 0 in data de: " + java.time.LocalDate.now() + "\n");
+        Path projectPath = Paths.get("").toAbsolutePath().getParent();
+        Path counterPath = projectPath.resolve("test-ops")
+                .resolve("logs")
+                .resolve("contoare resetate.txt");
+
+        if (!Files.exists(counterPath.getParent())) {
+            throw new IllegalStateException("Required directory not found: " + counterPath.getParent() +
+                    ". Please ensure test-ops/logs directory exists.");
+        }
+
+        try (FileWriter wtgFileWriter = new FileWriter(filePath);
+             FileWriter countersFileWriter = new FileWriter(counterPath.toString(), true)) { // true = append mode
+
+            wtgFileWriter.write("0 0 n");
+            countersFileWriter.write("Contorul fixture-ului " + fixtureFileName +
+                    " a fost resetat la 0 in data de: " + java.time.LocalDate.now()  +
+                    " pe hostname-ul " + hostname + "\n");
+
         } catch (IOException e) {
             log.error("An error occurred while resetting the counter", e);
+            throw new IllegalStateException("Failed to write to file: " + counterPath, e);
         }
     }
 
     @Scheduled(cron = "0 45 13 * * ?")
     public void scheduleBusinessLogic() {
-        List<Fixture> fixtures = fixtureRepository.findAll();
-        for (Fixture fixture : fixtures) {
-            doBusinessLogic(fixture);
-        }
+        createMaintenanceFixtureReport();
     }
 
     @Override

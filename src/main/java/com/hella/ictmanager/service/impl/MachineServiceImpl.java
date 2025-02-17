@@ -49,6 +49,7 @@ public class MachineServiceImpl implements MachineService {
         oldMachine.setInternalFactory(machineDTO.internalFactory());
         oldMachine.setSerialNumber(machineDTO.serialNumber());
         oldMachine.setEquipmentType(machineDTO.equipmentType());
+        oldMachine.setHostname(machineDTO.hostname());
         machineRepository.save(oldMachine);
         log.info("Machine {} has been updated", machineDTO.equipmentName());
     }

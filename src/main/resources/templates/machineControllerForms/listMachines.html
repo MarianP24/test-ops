@@ -15,8 +15,9 @@
             <th><input type="text" id="searchId" placeholder="Search by ID" class="form-control"></th>
             <th><input type="text" id="searchName" placeholder="Search by Name" class="form-control"></th>
             <th><input type="text" id="searchType" placeholder="Search by Type" class="form-control"></th>
-            <th><input type="text" id="searchLocation" placeholder="Search by Location" class="form-control"></th>
+            <th><input type="text" id="searchLocation" placeholder="Search by IF Location" class="form-control"></th>
             <th><input type="text" id="searchSerialNumber" placeholder="Search by SN" class="form-control"></th>
+            <th><input type="text" id="searchHostname" placeholder="Search by Hostname" class="form-control"></th>
             <th><button class="btn btn-sm btn-outline-secondary" onclick="sortTable()">Sort by ID</button></th>
         </tr>
 
@@ -24,8 +25,9 @@
             <th class="text-center align-middle">ID</th>
             <th class="text-center align-middle">Name</th>
             <th class="text-center align-middle">Type</th>
-            <th class="text-center align-middle">Location</th>
+            <th class="text-center align-middle">IF Location</th>
             <th class="text-center align-middle">SN</th>
+            <th class="text-center align-middle">Hostname</th>
         </tr>
         </thead>
 
@@ -36,6 +38,7 @@
             <td th:text="${machine.equipmentType}"></td>
             <td th:text="${machine.internalFactory}"></td>
             <td th:text="${machine.serialNumber}"></td>
+            <td th:text="${machine.hostname}"></td>
         </tr>
         </tbody>
     </table>
@@ -62,6 +65,7 @@
         const inputType = document.getElementById('searchType').value.toLowerCase();
         const inputLocation = document.getElementById('searchLocation').value.toLowerCase();
         const inputSerialNumber = document.getElementById('searchSerialNumber').value.toLowerCase();
+        const inputHostname = document.getElementById('searchHostname').value.toLowerCase();
 
         const rows = document.querySelectorAll('tbody tr');
 
@@ -71,13 +75,15 @@
             const type = row.cells[2].innerText.toLowerCase();
             const location = row.cells[3].innerText.toLowerCase();
             const serialNumber = row.cells[4].innerText.toLowerCase();
+            const hostname = row.cells[5].innerText.toLowerCase();
 
             row.style.display =
                 (id.includes(inputId) &&
                     name.includes(inputName) &&
                     type.includes(inputType) &&
                     location.includes(inputLocation) &&
-                    serialNumber.includes(inputSerialNumber)) ? '' : 'none';
+                    serialNumber.includes(inputSerialNumber)) &&
+                    hostname.includes(inputHostname) ? '' : 'none';
         });
     }
 
@@ -86,6 +92,7 @@
     document.getElementById('searchType').addEventListener('input', filterTable);
     document.getElementById('searchLocation').addEventListener('input', filterTable);
     document.getElementById('searchSerialNumber').addEventListener('input', filterTable);
+    document.getElementById('searchHostname').addEventListener('input', filterTable);
 
     let ascending = true;
 

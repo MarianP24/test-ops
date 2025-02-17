@@ -30,7 +30,7 @@ public class MachineController {
 
     @GetMapping("/new")
     public String saveMachineForm(Model model) {
-        model.addAttribute("machineDTO", new MachineDTO("", "", "",0 ));
+        model.addAttribute("machineDTO", new MachineDTO("", "", "",0, ""));
         return "machineControllerForms/saveMachine";
     }
 

@@ -28,6 +28,9 @@ public class Machine {
 
     private String equipmentType;
 
+    @Column
+    private String hostname;
+
     @ManyToMany(mappedBy = "machines")
     private Set<Fixture> fixtures = new HashSet<>();
 }
