@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <th:block th:replace="~{fragments/head :: head(title='Site Map')}"></th:block>
+
+    <link href="/css/siteMap.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="content-wrapper">
+
+    <div class="shadow-container">
+
+        <div class="treemap-container">
+
+            <div class="row">
+
+                <div class="col-md-8 d-flex flex-column" data-column="left">
+                    <div class="treemap-cell electronics" data-zone="1">
+                        ZONE 1
+                    </div>
+                    <div class="treemap-cell electronics" data-zone="2">
+                        ZONE 2
+                    </div>
+                    <div class="treemap-cell electronics" data-zone="3">
+                        ZONE 3
+                    </div>
+                    <div class="treemap-cell electronics" data-zone="4">
+                        ZONE 4
+                    </div>
+                    <div class="treemap-cell electronics" data-zone="5">
+                        ZONE 5
+                    </div>
+                </div>
+
+                <div class="col-md-4 d-flex flex-column" data-column="right">
+                    <div class="treemap-cell electronics" data-zone="6">
+                        ZONE 6
+                    </div>
+                    <div class="treemap-cell electronics" data-zone="7">
+                        ZONE 7
+                    </div>
+                    <div class="treemap-cell electronics" data-zone="8">
+                        ZONE 8
+                    </div>
+                    <div class="treemap-cell electronics" data-zone="9">
+                        ZONE 9
+                    </div>
+                    <div class="treemap-cell electronics" data-zone="10">
+                        ZONE 10
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+<script th:src="@{/js/treemap.js}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const navbar = document.querySelector('.navbar');
+        const contentWrapper = document.querySelector('.content-wrapper');
+
+        if (navbar && contentWrapper) {
+            const navHeight = navbar.offsetHeight;
+            const gap = 30;
+
+            // Subtract both navbar height and gap from total height
+            contentWrapper.style.height = `calc(100vh - ${navHeight + gap}px)`;
+            contentWrapper.style.marginTop = `${navHeight - gap}px`;
+            contentWrapper.style.position = 'relative';
+
+            // Update on window resize
+            window.addEventListener('resize', function () {
+                const newNavHeight = navbar.offsetHeight;
+                contentWrapper.style.height = `calc(100vh - ${newNavHeight + gap}px)`;
+                contentWrapper.style.marginTop = `${newNavHeight - gap}px`;
+            });
+        }
+    });
+</script>
