@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -168,9 +167,6 @@ public class FixtureServiceImpl implements FixtureService {
             }
         });
 
-
-
-
         log.info("Number of unique hostnames to process: {}", fixturesByHostname.size());
         fixturesByHostname.forEach((hostname, fixtureList) ->
                 log.info("Hostname: {} has {} fixtures", hostname, fixtureList.size()));
@@ -306,7 +302,7 @@ public class FixtureServiceImpl implements FixtureService {
 
             wtgFileWriter.write("0 0 n");
             countersFileWriter.write("Contorul fixture-ului " + fixtureFileName +
-                    " a fost resetat la 0 in data de: " + java.time.LocalDate.now()  +
+                    " a fost resetat la 0 in data de: " + java.time.LocalDate.now() +
                     " pe hostname-ul " + hostname + "\n");
 
         } catch (IOException e) {

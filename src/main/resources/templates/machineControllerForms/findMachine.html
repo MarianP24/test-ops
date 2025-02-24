@@ -28,6 +28,7 @@
                 <li class="list-group-item"><strong>Model:</strong> <span th:text="${machine.equipmentType}"></span></li>
                 <li class="list-group-item"><strong>Serial Number:</strong> <span th:text="${machine.serialNumber}"></span></li>
                 <li class="list-group-item"><strong>Internal Factory:</strong> <span th:text="${machine.internalFactory}"></span></li>
+                <li class="list-group-item"><strong>Hostname:</strong> <span th:text="${machine.hostname()}"></span> </li>
             </ul>
         </div>
         <div th:if="${errorMessage != null}" class="alert alert-danger mt-2" th:text="${errorMessage}"></div>
