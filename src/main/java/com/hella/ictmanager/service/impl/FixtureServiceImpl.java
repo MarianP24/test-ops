@@ -20,9 +20,7 @@ import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -133,21 +131,49 @@ public class FixtureServiceImpl implements FixtureService {
     }
 
     public void createMaintenanceFixtureReport() {
+        List<Machine> allMachines = machineRepository.findAll();
+        log.info("Total machines in database: {}", allMachines.size());
+        log.info("All machine hostnames: {}",
+                allMachines.stream()
+                        .map(Machine::getHostname)
+                        .toList());
+
         List<Fixture> fixtures = fixtureRepository.findAll();
 
-        // First, log fixtures with machines that have null hostnames
-        fixtures.stream()
-                .filter(f -> !f.getMachines().isEmpty())
-                .filter(f -> f.getMachines().iterator().next().getHostname() == null)
-                .forEach(f -> log.warn("Machine {} does not have a hostname",
-                        f.getMachines().iterator().next().getEquipmentName()));
+        // First, log machines with null hostnames
+        allMachines.stream()
+                .filter(m -> m.getHostname() == null)
+                .forEach(m -> log.warn("Machine {} does not have a hostname",
+                        m.getEquipmentName()));
 
-        // Then process only fixtures with valid hostnames
+        // Get all valid hostnames from machines repository
+        Set<String> allMachineHostnames = allMachines.stream()
+                .map(Machine::getHostname)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
         Map<String, List<Fixture>> fixturesByHostname = fixtures.stream()
                 .filter(f -> !f.getMachines().isEmpty())
-                .filter(f -> f.getMachines().iterator().next().getHostname() != null)
-                .collect(Collectors.groupingBy(f ->
-                        f.getMachines().iterator().next().getHostname()));
+                .flatMap(f -> f.getMachines().stream()
+                        .filter(m -> m.getHostname() != null)
+                        .map(m -> new AbstractMap.SimpleEntry<>(m.getHostname(), f)))
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+
+        // Log hostnames from all machines that don't have fixtures
+        allMachineHostnames.forEach(hostname -> {
+            if (!fixturesByHostname.containsKey(hostname)) {
+                log.warn("Hostname {} does not have any fixture", hostname);
+            }
+        });
+
+
+
+
+        log.info("Number of unique hostnames to process: {}", fixturesByHostname.size());
+        fixturesByHostname.forEach((hostname, fixtureList) ->
+                log.info("Hostname: {} has {} fixtures", hostname, fixtureList.size()));
 
         List<CompletableFuture<Void>> futures = fixturesByHostname.entrySet().stream()
                 .map(entry -> CompletableFuture.runAsync(() ->
@@ -160,16 +186,26 @@ public class FixtureServiceImpl implements FixtureService {
     }
 
     private void processHostnameFixtures(String hostname, List<Fixture> fixtures) {
+        log.info("Starting to process {} fixtures for hostname {}", fixtures.size(), hostname);
         try {
             String uncBasePath = createTemporaryConnection(hostname);
+            log.info("Successfully created connection to {} with base path {}", hostname, uncBasePath);
 
             for (Fixture fixture : fixtures) {
                 processSingleFixture(fixture, hostname, uncBasePath);
             }
+            log.info("Completed processing all fixtures for hostname {}", hostname);
         } catch (IOException e) {
-            log.error("Error creating temporary connection to hostname {}", hostname, e);
+            log.error("Unable to process fixtures for hostname {}: {}. Skipping this host.",
+                    hostname, e.getMessage(), e);
         } finally {
-            removeConnection(hostname);
+            try {
+                removeConnection(hostname);
+                log.info("Successfully removed connection to hostname {}", hostname);
+            } catch (Exception e) {
+                log.error("Failed to remove connection to {}: {}. Continuing execution.",
+                        hostname, e.getMessage(), e);
+            }
         }
     }
 
@@ -194,6 +230,7 @@ public class FixtureServiceImpl implements FixtureService {
             if (exitCode != 0) {
                 throw new IOException("Failed to create temporary connection to " + hostname);
             }
+            log.info("Successfully connected to hostname {}", hostname);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("Connection interrupted", e);
@@ -234,17 +271,17 @@ public class FixtureServiceImpl implements FixtureService {
         try (Scanner scanner = new Scanner(file)) {
             if (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                log.info("Line {} has been read from file {}", line, fixture.getFileName());
+                log.info("Line {} has been read from file {} on hostname {}", line, fixture.getFileName(), hostname);
                 String[] words = line.split("\\s+");
                 int counter = Integer.parseInt(words[0]);
 
                 if (counter >= fixture.getFixtureCounterSet()) {
                     resetCounter(fixture.getFileName(), fullPath, hostname);
-                    log.info("Counter has been reset for fixture {}", fixture.getFileName());
+                    log.info("Counter has been reset for fixture {} on hostname {}", fixture.getFileName(), hostname);
                 } else {
                     fixture.setCounter(counter);
                     fixtureRepository.save(fixture);
-                    log.info("Counter has been checked for fixture {}", fixture.getFileName());
+                    log.info("Counter has been checked for fixture {} on hostname {}", fixture.getFileName(), hostname);
                 }
             }
         } catch (FileNotFoundException e) {
