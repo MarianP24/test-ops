@@ -1,6 +1,7 @@
 package com.hella.ictmanager.controller;
 
 import com.hella.ictmanager.entity.Machine;
+import com.hella.ictmanager.model.FixtureMachineMapDTO;
 import com.hella.ictmanager.model.MachineDTO;
 import com.hella.ictmanager.repository.MachineRepository;
 import com.hella.ictmanager.service.impl.MachineServiceImpl;
@@ -10,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -108,5 +110,20 @@ public class MachineController {
             model.addAttribute("errorMessage", e.getMessage());
         }
         return "machineControllerForms/deleteMachine";
+    }
+
+    @GetMapping("/fixtureMap")
+    public String showFixtureMachineMap(Model model) {
+        List<Machine> machines = machineRepository.findAll();
+        List<FixtureMachineMapDTO> mappings = machines.stream()
+                .flatMap(machine -> machine.getFixtures().stream()
+                        .map(fixture -> new FixtureMachineMapDTO(
+                                machine.getId(),
+                                fixture.getId()
+                        )))
+                .collect(Collectors.toList());
+
+        model.addAttribute("fixtureMachineMap", mappings);
+        return "machineControllerForms/fixtureMap";
     }
 }

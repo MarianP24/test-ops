@@ -32,6 +32,7 @@ public class FixtureServiceImpl implements FixtureService {
     private final FixtureRepository fixtureRepository;
     private final MachineRepository machineRepository;
     private final ExecutorService executorService;
+    private final Map<Long, Integer> fixtureCounterTotals = new HashMap<>();
 
     @Value("${network.share.username}")
     private String username;
@@ -130,6 +131,7 @@ public class FixtureServiceImpl implements FixtureService {
     }
 
     public void createMaintenanceFixtureReport() {
+        fixtureCounterTotals.clear();
         List<Machine> allMachines = machineRepository.findAll();
         log.info("Total machines in database: {}", allMachines.size());
         log.info("All machine hostnames: {}",
@@ -205,9 +207,39 @@ public class FixtureServiceImpl implements FixtureService {
         }
     }
 
+    @PreDestroy
+    private void clearCounters() {
+        fixtureCounterTotals.clear();
+    }
+
     private void processSingleFixture(Fixture fixture, String hostname, String uncBasePath) {
         try {
-            processFixture(fixture, uncBasePath, hostname);
+            int counter = processFixture(fixture, uncBasePath, hostname);
+
+            // First check individual counter
+            if (counter >= fixture.getFixtureCounterSet()) {
+                resetCounter(fixture.getFileName(), uncBasePath + "\\" + fixture.getFileName(), hostname);
+                log.info("Counter has been reset for fixture {} on hostname {}",
+                        fixture.getFileName(), hostname);
+                return;
+            }
+
+            // Update the total counter for this fixture
+            synchronized (fixtureCounterTotals) {
+                int currentTotal = fixtureCounterTotals.getOrDefault(fixture.getId(), 0);
+                int newTotal = currentTotal + counter;
+                fixtureCounterTotals.put(fixture.getId(), newTotal);
+
+                // Save the total counter to the database instead of individual counter
+                fixture.setCounter(newTotal);
+                fixtureRepository.save(fixture);
+
+                // Check if the total counter exceeds the threshold - just log
+                if (newTotal >= fixture.getFixtureCounterSet()) {
+                    log.info("Sum of all counters ({}) has reached threshold for fixture {} on hostname {}",
+                            newTotal, fixture.getFileName(), hostname);
+                }
+            }
         } catch (Exception e) {
             log.error("Error processing fixture {} on hostname {}", fixture.getFileName(), hostname, e);
         }
@@ -255,13 +287,13 @@ public class FixtureServiceImpl implements FixtureService {
         }
     }
 
-    private void processFixture(Fixture fixture, String basePath, String hostname) {
+    private int processFixture(Fixture fixture, String basePath, String hostname) {
         String fullPath = basePath + "\\" + fixture.getFileName();
         File file = new File(fullPath);
 
         if (!file.exists()) {
             log.error("File {} does not exist at path: {}", fixture.getFileName(), fullPath);
-            return;
+            return 0;
         }
 
         try (Scanner scanner = new Scanner(file)) {
@@ -269,20 +301,12 @@ public class FixtureServiceImpl implements FixtureService {
                 String line = scanner.nextLine();
                 log.info("Line {} has been read from file {} on hostname {}", line, fixture.getFileName(), hostname);
                 String[] words = line.split("\\s+");
-                int counter = Integer.parseInt(words[0]);
-
-                if (counter >= fixture.getFixtureCounterSet()) {
-                    resetCounter(fixture.getFileName(), fullPath, hostname);
-                    log.info("Counter has been reset for fixture {} on hostname {}", fixture.getFileName(), hostname);
-                } else {
-                    fixture.setCounter(counter);
-                    fixtureRepository.save(fixture);
-                    log.info("Counter has been checked for fixture {} on hostname {}", fixture.getFileName(), hostname);
-                }
+                return Integer.parseInt(words[0]);
             }
         } catch (FileNotFoundException e) {
             log.error("File not found: {}", fullPath, e);
         }
+        return 0;
     }
 
     private void resetCounter(String fixtureFileName, String filePath, String hostname) {

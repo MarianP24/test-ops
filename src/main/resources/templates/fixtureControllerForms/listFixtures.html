@@ -13,12 +13,12 @@
     <table class="table table-striped mt-4">
         <thead>
         <tr>
-            <th><input type="text" id="searchId" placeholder="Search by ID" class="form-control"></th>
-            <th><input type="text" id="searchFileName" placeholder="Search by File Name" class="form-control"></th>
-            <th><input type="text" id="searchProgramName" placeholder="Search by Program Name" class="form-control"></th>
-            <th><input type="text" id="searchProductName" placeholder="Search by Product Name" class="form-control"></th>
-            <th><input type="text" id="searchBusiness" placeholder="Search by Business" class="form-control"></th>
-            <th><input type="text" id="searchFixtureCounterSet" placeholder="Search by Counter Set" class="form-control"></th>
+            <th><input type="text" id="searchId" placeholder="Src by ID" class="form-control"></th>
+            <th><input type="text" id="searchFileName" placeholder="Src File Name" class="form-control"></th>
+            <th><input type="text" id="searchProgramName" placeholder="Src Program Name" class="form-control"></th>
+            <th><input type="text" id="searchProductName" placeholder="Src Product Name" class="form-control"></th>
+            <th><input type="text" id="searchBusiness" placeholder="Src Business" class="form-control"></th>
+            <th><input type="text" id="searchFixtureCounterSet" placeholder="Src Counter Set" class="form-control"></th>
             <th><button class="btn btn-sm btn-outline-secondary" onclick="sortTable()">Sort Counters</button></th>
         </tr>
 
@@ -36,13 +36,13 @@
 
         <tbody>
         <tr th:each="fixture : ${fixtures}">
-            <td th:text="${fixture.id}"></td>
-            <td th:text="${fixture.fileName}"></td>
-            <td th:text="${fixture.programName}"></td>
-            <td th:text="${fixture.productName}"></td>
-            <td th:text="${fixture.business}"></td>
-            <td th:text="${fixture.fixtureCounterSet}"></td>
-            <td th:text="${fixture.counter}"></td>
+            <td class="text-center" th:text="${fixture.id}"></td>
+            <td class="text-center" th:text="${fixture.fileName}"></td>
+            <td class="text-center" th:text="${fixture.programName}"></td>
+            <td class="text-center" th:text="${fixture.productName}"></td>
+            <td class="text-center" th:text="${fixture.business}"></td>
+            <td class="text-center" th:text="${fixture.fixtureCounterSet}"></td>
+            <td class="text-center" th:text="${fixture.counter}"></td>
         </tr>
         </tbody>
     </table>
@@ -50,7 +50,6 @@
     <button class="btn btn-primary mt-3" onclick="countFixtures()">Count Fixtures</button>
     <button class="btn btn-secondary mt-3" onclick="generateCSV()">Generate CSV</button>
 
-    <!-- Element pentru afișarea rezultatului -->
     <p id="fixtureCount" class="mt-3"></p>
 
 </div>
@@ -60,7 +59,8 @@
 <script>
     function countFixtures() {
         const rows = document.querySelectorAll('tbody tr');
-        const fixtureCount = rows.length;
+        const visibleFixtures = Array.from(rows).filter(row => row.style.display !== 'none');
+        const fixtureCount = visibleFixtures.length;
         document.getElementById('fixtureCount').innerText = 'Total Fixtures: ' + fixtureCount;
     }
 

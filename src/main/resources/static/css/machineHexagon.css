@@ -54,3 +54,8 @@
 .hex5 { background-image: url('../images/findMachine.PNG');
     background-color: rgba(0, 0, 0, 0.3);
     background-blend-mode: darken;}
+.hex6 {
+    background-image: url('../images/fixtureMap.PNG');
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: darken;
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<th:block th:replace="~{fragments/head :: head(title='Fixture Machine Map')}"></th:block>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container">
+    <h1 class="mt-5">Fixture-Machine Mapping</h1>
+    <table class="table table-striped mt-4">
+        <thead>
+        <tr>
+            <th><input type="text" id="searchMachineId" placeholder="Search by Machine ID" class="form-control"></th>
+            <th><input type="text" id="searchFixtureId" placeholder="Search by Fixture ID" class="form-control"></th>
+            <th><button class="btn btn-sm btn-outline-secondary" onclick="sortTable()">Sort by Machine ID</button></th>
+        </tr>
+
+        <tr>
+            <th class="text-center align-middle">Machine ID</th>
+            <th class="text-center align-middle">Fixture ID</th>
+            <th class="text-center align-middle">Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="mapping : ${fixtureMachineMap}">
+            <td class="text-center" th:text="${mapping.machineId}"></td>
+            <td class="text-center" th:text="${mapping.fixtureId}"></td>
+            <td class="text-center">
+                <button class="btn btn-sm btn-danger">Remove</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary mt-3" onclick="countMappings()">Count Mappings</button>
+    <button class="btn btn-secondary mt-3" onclick="generateCSV()">Generate CSV</button>
+
+    <p id="mappingCount" class="mt-3"></p>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+
+<script>
+    function countMappings() {
+        const rows = document.querySelectorAll('tbody tr');
+        const mappingCount = rows.length;
+        document.getElementById('mappingCount').innerText = 'Total Mappings: ' + mappingCount;
+    }
+
+    function filterTable() {
+        const inputMachineId = document.getElementById('searchMachineId').value.toLowerCase();
+        const inputFixtureId = document.getElementById('searchFixtureId').value.toLowerCase();
+
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const machineId = row.cells[0].innerText.toLowerCase();
+            const fixtureId = row.cells[1].innerText.toLowerCase();
+
+            row.style.display =
+                machineId.includes(inputMachineId) &&
+                fixtureId.includes(inputFixtureId) ? '' : 'none';
+        });
+    }
+
+    // Add event listeners for search inputs
+    document.getElementById('searchMachineId').addEventListener('input', filterTable);
+    document.getElementById('searchFixtureId').addEventListener('input', filterTable);
+
+    function sortTable() {
+        const tbody = document.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+            const machineIdA = parseInt(a.cells[0].innerText);
+            const machineIdB = parseInt(b.cells[0].innerText);
+            return machineIdA - machineIdB;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    }
+</script>
+</body>
+</html>
