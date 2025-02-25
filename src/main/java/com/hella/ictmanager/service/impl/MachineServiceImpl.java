@@ -4,6 +4,7 @@ import com.hella.ictmanager.entity.Machine;
 import com.hella.ictmanager.model.MachineDTO;
 import com.hella.ictmanager.repository.MachineRepository;
 import com.hella.ictmanager.service.MachineService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -55,9 +56,14 @@ public class MachineServiceImpl implements MachineService {
     }
 
     @Override
+    @Transactional
     public void deleteById(long id) {
+        // First, delete all associations in the fixture_machine table
+        machineRepository.deleteFixtureRelations(id);
+
+        // Then delete the machine itself
         machineRepository.deleteById(id);
-        log.info("Machine with id {} has been deleted", id);
+        log.info("Machine with id {} and its related fixture  have been deleted", id);
     }
 
     @Override
