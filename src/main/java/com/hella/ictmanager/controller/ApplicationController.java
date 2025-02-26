@@ -5,14 +5,10 @@ import com.hella.ictmanager.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/application")
 @RequiredArgsConstructor
 public class ApplicationController {
@@ -26,7 +22,7 @@ public class ApplicationController {
     }
 
     @GetMapping("/status")
-    @ResponseBody
+
     public ResponseEntity<ApplicationStatus> getStatus() {
         return ResponseEntity.ok(applicationService.getStatus());
     }
