@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <th:block th:replace="~{fragments/head :: head(title='Application Management')}"></th:block>
+  <link href="/css/application-management.css" rel="stylesheet">
+</head>
+
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="content-wrapper">
+  <div class="shadow-container">
+    <div class="container">
+      <h1>Application Management Console</h1>
+      <div class="buttons-container">
+        <button class="button stop-btn" onclick="handleOperation('shutdown')">Stop Application</button>
+        <button class="button restart-btn" onclick="handleOperation('restart')">Restart Application</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="overlay" class="overlay"></div>
+<div id="confirmDialog" class="confirmation-dialog">
+  <h3>Confirmation Required</h3>
+  <p id="confirmMessage"></p>
+  <div style="margin-top: 20px; text-align: right;">
+    <button class="button" onclick="cancelOperation()">Cancel</button>
+    <button id="confirmButton" class="button" style="margin-left: 10px;">Confirm</button>
+  </div>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+<script th:src="@{/js/application-management.js}"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const navbar = document.querySelector('.navbar');
+    const contentWrapper = document.querySelector('.content-wrapper');
+
+    if (navbar && contentWrapper) {
+      const navHeight = navbar.offsetHeight;
+      const gap = 30;
+
+      contentWrapper.style.height = `calc(100vh - ${navHeight + gap}px)`;
+      contentWrapper.style.marginTop = `${navHeight - gap}px`;
+      contentWrapper.style.position = 'relative';
+
+      window.addEventListener('resize', function () {
+        const newNavHeight = navbar.offsetHeight;
+        contentWrapper.style.height = `calc(100vh - ${newNavHeight + gap}px)`;
+        contentWrapper.style.marginTop = `${newNavHeight - gap}px`;
+      });
+    }
+  });
+</script>
+</body>
+</html>
