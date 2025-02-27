@@ -15,14 +15,7 @@ public class ApplicationController {
 
     private final ApplicationService applicationService;
 
-    @GetMapping
-    public String applicationManagementPage() {
-        log.info("Accessing application management page");
-        return "applicationService/application-management";
-    }
-
     @GetMapping("/status")
-
     public ResponseEntity<ApplicationStatus> getStatus() {
         return ResponseEntity.ok(applicationService.getStatus());
     }

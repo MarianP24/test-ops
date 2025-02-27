@@ -47,13 +47,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         Thread shutdownThread = new Thread(() -> {
             try {
-                updateStatus(PHASE_SHUTTING_DOWN, 50, "Closing application context");
-                ConfigurableApplicationContext configurableContext =
-                        (ConfigurableApplicationContext) applicationContext;
-
-                configurableContext.close();
+                updateStatus(PHASE_SHUTTING_DOWN, 50, "Requesting graceful shutdown");
+                Thread.sleep(1000);
                 updateStatus(PHASE_COMPLETED, 100, "Shutdown completed", true);
-
+                Thread.sleep(500);
                 System.exit(0);
             } catch (Exception e) {
                 log.error("Error during shutdown", e);
@@ -61,7 +58,6 @@ public class ApplicationServiceImpl implements ApplicationService {
                 System.exit(1);
             }
         }, "ShutdownThread");
-
         shutdownThread.setDaemon(false);
         shutdownThread.start();
     }
