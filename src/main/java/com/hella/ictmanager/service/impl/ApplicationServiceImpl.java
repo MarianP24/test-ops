@@ -1,5 +1,7 @@
 package com.hella.ictmanager.service.impl;
 
+import com.hella.ictmanager.exception.ApplicationRestartException;
+import com.hella.ictmanager.exception.ApplicationShutdownException;
 import com.hella.ictmanager.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +23,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public void shutdownApplication() {
-        log.warn("Initiating application shutdown");
+        log.info("Initiating application shutdown");
 
         if (applicationContext instanceof ConfigurableApplicationContext configurableContext) {
             CompletableFuture.runAsync(() -> {
@@ -29,7 +31,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                             configurableContext.close();
                         } catch (Exception e) {
                             log.error("Error during shutdown", e);
-                            throw new RuntimeException("Shutdown failed", e);
+                            throw new ApplicationShutdownException("Shutdown failed", e);
                         }
                     }).orTimeout(30, TimeUnit.SECONDS)
                     .exceptionally(throwable -> {
@@ -41,8 +43,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public void restartApplication() {
-
-        log.warn("Initiating application restart");
+        log.info("Initiating application restart");
         ApplicationArguments args = applicationContext.getBean(ApplicationArguments.class);
 
         Thread restartThread = new Thread(() -> {
@@ -57,32 +58,35 @@ public class ApplicationServiceImpl implements ApplicationService {
                 Class<?> mainClass = getMainApplicationClass();
                 String[] sourceArgs = args.getSourceArgs();
 
-                ConfigurableApplicationContext newContext = null;
-                try {
-                    SpringApplication app = new SpringApplication(mainClass);
-                    app.setRegisterShutdownHook(false);
-                    newContext = app.run(sourceArgs);
-
-                    if (newContext != null && newContext.isRunning()) {
-                        log.info("Application restarted successfully");
-                    } else {
-                        log.error("Failed to restart the application");
-                    }
-                } catch (Exception e) {
-                    log.error("Failed to restart application", e);
-                    if (newContext != null) {
-                        newContext.close();
-                    }
-                    System.exit(1);
-                }
-            } catch (Exception e) {
-                log.error("Restart failed", e);
-                System.exit(1);
+                startNewApplication(mainClass, sourceArgs);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new ApplicationRestartException("Application restart interrupted", e);
             }
         }, "RestartThread");
 
         restartThread.setDaemon(false);
         restartThread.start();
+    }
+
+    private void startNewApplication(Class<?> mainClass, String[] sourceArgs) {
+        ConfigurableApplicationContext newContext = null;
+        try {
+            SpringApplication app = new SpringApplication(mainClass);
+            app.setRegisterShutdownHook(false);
+            newContext = app.run(sourceArgs);
+
+            if (newContext != null && newContext.isRunning()) {
+                log.info("Application restarted successfully");
+            } else {
+                throw new ApplicationRestartException("Failed to restart the application - context not running");
+            }
+        } catch (Exception e) {
+            if (newContext != null) {
+                newContext.close();
+            }
+            throw new ApplicationRestartException("Failed to restart application", e);
+        }
     }
 
     private Class<?> getMainApplicationClass() {
