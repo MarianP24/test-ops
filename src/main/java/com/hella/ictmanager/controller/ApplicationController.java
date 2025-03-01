@@ -1,6 +1,5 @@
 package com.hella.ictmanager.controller;
 
-import com.hella.ictmanager.model.ApplicationStatus;
 import com.hella.ictmanager.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +13,6 @@ import org.springframework.web.bind.annotation.*;
 public class ApplicationController {
 
     private final ApplicationService applicationService;
-
-    @GetMapping("/status")
-    public ResponseEntity<ApplicationStatus> getStatus() {
-        return ResponseEntity.ok(applicationService.getStatus());
-    }
-
 
     @PostMapping("/shutdown")
     public ResponseEntity<String> shutdownApplication() {
