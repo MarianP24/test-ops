@@ -5,6 +5,9 @@ import com.hella.ictmanager.model.FixtureDTO;
 import com.hella.ictmanager.repository.FixtureRepository;
 import com.hella.ictmanager.service.FixtureService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -149,4 +152,19 @@ public class FixtureController {
         }
         return "fixtureControllerForms/createMaintenanceReport";
     }
+
+    @GetMapping("/counter")
+    @ResponseBody
+    public ResponseEntity<String> getCounterContent() {
+        try {
+            String counterContent = fixtureService.getCounterContent();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(counterContent);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving counter content: " + e.getMessage());
+        }
+    }
+
 }

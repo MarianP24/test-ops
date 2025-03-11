@@ -19,4 +19,6 @@ public interface MachineService {
     void deleteById(long id);
 
     Machine findEntityById(Long id);
+
+    Machine findByHostname(String hostname);
 }

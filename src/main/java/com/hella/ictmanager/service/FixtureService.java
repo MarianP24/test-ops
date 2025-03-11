@@ -25,4 +25,6 @@ public interface FixtureService {
     void createMaintenanceFixtureReport();
 
     void removeFixtureFromMachine(long fixtureId);
+
+    String getCounterContent();
 }
